@@ -3,17 +3,51 @@ import Text.Regex.Posix
 import Data.Text
 
 --a variable and what it is bonded by
+--                           id  dom   [(operator, const2_id)]
 data Constraint = Constraint Int [Int] [(Com, Int)]
 
 data LongConstraint = LongConstraint String (Maybe [Int]) (Maybe (Com, String))
 
 data Com = Com (a -> a -> Bool)
 
-solve :: [(Int,[Int],[Int])] -> [Int]
+--solve :: [Constraint] -> [Int]
 
-branch :: [Int] -> [(Int,[In)] -> [Int]
+--branch :: [Int] -> [Constraint] -> [Int]
 
+changeCnsts :: [LongConstraint] -> [Constraint]
 
+createDomVars' :: [String] -> [LongConstraint] -> [Constraint] -> [String] -> [Constraint]
+createDomVars' cnstInd [] cs    = cs ind
+createDomVars' cnstInd ((name dom con):lcs) cs
+	| dom /= Nothing = (( ind dom [] ):subCnst) subInds
+	| otherwise	 = createDomVars' cnstInd lcs --ignores constraint
+	where
+	inds ind = getIndexAddIfNot name cnstInd
+	subInds subCnst = createDomVars' inds lcs cs
+	
+assignCnsts' :: [String] -> [Constraint] -> [LongConstraint] -> [Constraint]
+assignCnsts' nameInd cs [] = []
+assignCnsts' nameInd cs ((name dom con):lcs)
+	| con /= Nothing = (( ind dom [] ):subCnst) subInds
+	| otherwise	 = assignCnsts' ss cs lcs --ignores definition
+	where
+	ind = fromJust (elemIndex name nameInd)
+	
+	
+getConstraint' :: Int -> [Contraint] -> Maybe Constraint
+getConstraint' i []     = Nothing
+getConstraint' i ((id stuff) :cs)
+	| i == id   = (id stuff)
+	| otherwise = getConstraint' i cs
+
+getIndexAddIfNot :: String -> [String] -> [String] -> Int
+getIndexAddIfNot s inds
+	| index /= Nothing = inds (fromJust index)
+	| otherwise	   = inds++s (length inds)
+	where
+	index = elemIndex s inds
+
+--creates subtype for parsing 
 parseLines :: [String] -> [LongConstraint]
 parseLines [] = []
 parseLines (s:ss)
@@ -30,7 +64,6 @@ domLine line = split!!0 dom Nothing
 	split = spliceOn " " line
 	dom = domGet (split!!2)
 
---todo: parse for .. vs , for making range vs individual values
 --gets the domain that a variable can span from a string
 domGet :: String -> [Int]
 domGet dom

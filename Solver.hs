@@ -2,8 +2,11 @@ import System.Environment ( getArgs )
 import Text.Regex.Posix
 import Data.Text
 
+solve :: [(Int,[Int],[Int])] -> [(Int,Int)]
+
+
 parseLines :: [String] -> [(String, [Int])]
-parseLines (s:ss) = ( varDomLine s : parseLines ss )
+parseLines (s:ss) = ( varDomLine s :  parseLines ss )
 
 varDomLine :: String -> (String, [Int])
 varDomLine line = (split!!0, dom)
@@ -11,16 +14,16 @@ varDomLine line = (split!!0, dom)
 	split = spliceOn " " line
 	dom = domGet (split!!2)
 
+--todo: parse for .. vs , for making range vs individual values
 domGet :: String -> [Int]
 domGet dom = [low..high]
 	where
-	split = spliceOn "," dom
+	split = spliceOn ".." dom
 	low = read (split!!0)
 	high = read (split!!1)
 
 spliceOn :: String -> String -> [String]
 spliceOn sp big =  Prelude.map unpack (splitOn (pack sp) (pack big))
-
 
 out' :: [(String, [Int])] -> String
 out' [] = ""

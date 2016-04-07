@@ -14,8 +14,10 @@ data Com = Com (a -> a -> Bool)
 
 --branch :: [Int] -> [Constraint] -> [Int]
 
-changeCnsts :: [LongConstraint] -> [Constraint]
+--changeCnsts :: [LongConstraint] -> [Constraint]
 
+--todo check if it exists in CSs already
+--from string contraints converts to the int constraints, checking only for the definitions
 createDomVars' :: [String] -> [LongConstraint] -> [Constraint] -> [String] -> [Constraint]
 createDomVars' cnstInd [] cs    = cs ind
 createDomVars' cnstInd ((name dom con):lcs) cs
@@ -28,18 +30,27 @@ createDomVars' cnstInd ((name dom con):lcs) cs
 assignCnsts' :: [String] -> [Constraint] -> [LongConstraint] -> [Constraint]
 assignCnsts' nameInd cs [] = []
 assignCnsts' nameInd cs ((name dom con):lcs)
-	| con /= Nothing = (( ind dom [] ):subCnst) subInds
+	| con /= Nothing = ((defWCnst):lcsCss) subInds
 	| otherwise	 = assignCnsts' ss cs lcs --ignores definition
 	where
-	ind = fromJust (elemIndex name nameInd)
+	(comp, strId) = fromJust(con)
+	ind      = fromJust (elemIndex name nameInd)
+	cnstInd  = fromJust(elemIndex strId nameInd)
+	defWCnst = assCnst (fromJust(con)) (name dom con)
+	lcsCss   = assignCnsts' nameInd cs lcs
+
+--Adds a constraint to some constraint
+assCnst :: (Com, Int) -> Constraint -> Constraint
+assCnst c id dom cs = id dom cs++c
 	
-	
+--from an id returns the constraint
 getConstraint' :: Int -> [Contraint] -> Maybe Constraint
 getConstraint' i []     = Nothing
 getConstraint' i ((id stuff) :cs)
 	| i == id   = (id stuff)
 	| otherwise = getConstraint' i cs
 
+--searches a list of strings for value, if it's not there, it adds it to the list, overall it returns the index
 getIndexAddIfNot :: String -> [String] -> [String] -> Int
 getIndexAddIfNot s inds
 	| index /= Nothing = inds (fromJust index)

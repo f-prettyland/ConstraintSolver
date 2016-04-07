@@ -1,14 +1,15 @@
-import System.Environment ( getArgs )
-import Text.Regex.Posix
-import Data.Text
-
+import	System.Environment ( getArgs )
+import	Text.Regex.Posix
+import 	Data.Text ( splitOn,pack, unpack )
+import	Data.Maybe	( fromJust )
+import	Data.List 	( elemIndex )
 --a variable and what it is bonded by
 --                           id  dom   [(operator, const2_id)]
 data Constraint = Constraint Int [Int] [(Com, Int)]
 
 data LongConstraint = LongConstraint String (Maybe [Int]) (Maybe (Com, String))
 
-data Com = Com (a -> a -> Bool)
+data Com = Com (Eq a => a -> a -> Bool)
 
 --solve :: [Constraint] -> [Int]
 
@@ -18,43 +19,49 @@ data Com = Com (a -> a -> Bool)
 
 --todo check if it exists in CSs already
 --from string contraints converts to the int constraints, checking only for the definitions
-createDomVars' :: [String] -> [LongConstraint] -> [Constraint] -> [String] -> [Constraint]
-createDomVars' cnstInd [] cs    = cs ind
-createDomVars' cnstInd ((name dom con):lcs) cs
-	| dom /= Nothing = (( ind dom [] ):subCnst) subInds
+createDomVars' :: [String] -> [LongConstraint] -> [Constraint] -> ([String], [Constraint])
+createDomVars' cnstInd [] cs    = (cs,cnstInd)
+createDomVars' cnstInd (lc :lcs) cs
+--createDomVars' cnstInd ((name dom con):lcs) cs
+	| dom /= Nothing = (subInds, ((Constraint newInd dom [] ):subCnst))
 	| otherwise	 = createDomVars' cnstInd lcs --ignores constraint
 	where
-	inds ind = getIndexAddIfNot name cnstInd
-	subInds subCnst = createDomVars' inds lcs cs
+	(inds, newInd) = getIndexAddIfNot name cnstInd
+	(subInds, subCnst) = createDomVars' inds lcs cs
+	LongConstraint name dom con   = lc
 	
 assignCnsts' :: [String] -> [Constraint] -> [LongConstraint] -> [Constraint]
 assignCnsts' nameInd cs [] = []
-assignCnsts' nameInd cs ((name dom con):lcs)
-	| con /= Nothing = ((defWCnst):lcsCss) subInds
-	| otherwise	 = assignCnsts' ss cs lcs --ignores definition
+assignCnsts' nameInd cs (lc:lcs)
+--assignCnsts' nameInd cs ((name dom con):lcs)
+	| con /= Nothing = ((defWCnst):lcsCss) 
+	| otherwise	 = assignCnsts' nameInd cs lcs --ignores definition
 	where
 	(comp, strId) = fromJust(con)
 	ind      = fromJust (elemIndex name nameInd)
 	cnstInd  = fromJust(elemIndex strId nameInd)
 	defWCnst = assCnst (fromJust(con)) (name dom con)
 	lcsCss   = assignCnsts' nameInd cs lcs
+	LongConstraint name dom con = lc
 
 --Adds a constraint to some constraint
 assCnst :: (Com, Int) -> Constraint -> Constraint
 assCnst c id dom cs = id dom cs++c
 	
 --from an id returns the constraint
-getConstraint' :: Int -> [Contraint] -> Maybe Constraint
+getConstraint' :: Int -> [Constraint] -> Maybe Constraint
 getConstraint' i []     = Nothing
-getConstraint' i ((id stuff) :cs)
+getConstraint' i (c :cs)
 	| i == id   = (id stuff)
 	| otherwise = getConstraint' i cs
+	where
+	Constraint id stuff = c
 
 --searches a list of strings for value, if it's not there, it adds it to the list, overall it returns the index
-getIndexAddIfNot :: String -> [String] -> [String] -> Int
+getIndexAddIfNot :: String -> [String] -> ([String], Int)
 getIndexAddIfNot s inds
-	| index /= Nothing = inds (fromJust index)
-	| otherwise	   = inds++s (length inds)
+	| index /= Nothing = (inds, (fromJust index))
+	| otherwise	   = (inds++s, (length inds))
 	where
 	index = elemIndex s inds
 
@@ -82,13 +89,13 @@ domGet dom
 	| otherwise   = [low..high]
 	where
 	split = spliceOn ".." dom
-:	low = read (split!!0)
+	low = read (split!!0)
 	high = read (split!!1)
 
 --builds the domain of possible numbers
 nonConsecDomGet :: [String] -> [Int]
 nonConsecDomGet [] = []
-nonConsecDomGet (s:ss) = ((read s)::Int : nonConsecDomGet ss )
+nonConsecDomGet (s:ss) = (((read s)::Int) : nonConsecDomGet ss )
 
 
 --gets the constraint from a line
@@ -111,7 +118,7 @@ getOp sym
 
 --splits up a string from a given string value
 spliceOn :: String -> String -> [String]
-spliceOn sp big =  Prelude.map unpack (splitOn (pack sp) (pack big))
+spliceOn sp big =  map unpack (splitOn (pack sp) (pack big))
 
 --debug parse printing
 out' :: [(String, [Int])] -> String

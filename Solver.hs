@@ -5,11 +5,11 @@ import	Data.Maybe	( fromJust )
 import	Data.List 	( elemIndex )
 --a variable and what it is bonded by
 --                           id  dom   [(operator, const2_id)]
-data Constraint = Constraint Int [Int] [(Com, Int)]
+data Constraint = Constraint Int [Int] [(Eq Int, Int)]
 
-data LongConstraint = LongConstraint String (Maybe [Int]) (Maybe (Com, String))
+data LongConstraint = LongConstraint String (Maybe [Int]) (Maybe (Eq Int, String))
 
-data Com = Com (Eq a => a -> a -> Bool)
+--data Com = Com (Eq a => a -> a -> Bool)
 
 --solve :: [Constraint] -> [Int]
 
@@ -45,7 +45,7 @@ assignCnsts' nameInd cs (lc:lcs)
 	LongConstraint name dom con = lc
 
 --Adds a constraint to some constraint
-assCnst :: (Com, Int) -> Constraint -> Constraint
+assCnst :: (Eq Int, Int) -> Constraint -> Constraint
 assCnst c id dom cs = id dom cs++c
 	
 --from an id returns the constraint
@@ -106,7 +106,7 @@ constLine line = split!!0 Nothing (op, split!!1)
 	op = getOp split!!1
 
 --takes in a string and finds the operator for it
-getOp :: String -> Com
+getOp :: String -> Eq Int
 getOp sym
 	| sym == "==" = (==)
 	| sym == "/=" = (/=) -- :/

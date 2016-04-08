@@ -1,0 +1,33 @@
+----Haskell counting number of function call----
+
+Say I have a function concat :: String -> String -> String. So,
+
+var :: String
+var = concat (concat "a" "b") "c")  -- "abc"
+
+Now, I have a function which I want to use to calculate how many times concat is called:
+
+func :: (String->String->String) -> Int
+
+So, func var should return 2.
+
+How should I get this value and at the same time perform the concat?
+
+
+
+The right way to do this is to replace concat :: String -> String -> String with concatA :: String -> String -> f (String), for some appropriate Applicative f. For example, you could use Writer:
+
+concatW :: String -> String -> Writer Int String
+concatW s1 s2 = Writer (s1++s2, Sum 1)
+
+Now
+
+concatW s1 s2 >>= concatW s3 >>= concatW s4
+
+Or
+
+(<=) <$> concatW s1 s2 <*> concatW s3 s4
+
+will count things for you.
+
+If you are interested in how many times your function is called for debugging purposes, you may want to use trace from Debug.Trace. You may also want to use the profiler and annotate the function as a cost center. You could even use unsafePerformIO if you're crazy. But these are not things that should generally appear in a released program.

@@ -5,21 +5,42 @@ import System.Environment ( getArgs )
 import	Text.Regex.Posix
 import	Data.List 	( elemIndex )
 
-data StringConstraint  = StringConstraint String Equ String
+possEqualities = ["==", "!=", "<", ">", "<=", ">="]
+
+
+--creates subtype for parsing 
+parseLines :: [String] -> ([Constraint],[Variable])
+parseLines ss = parseLines' [] [] ss
+
+
+--todo: extend this to array defn
+parseLines' :: [Constraint] -> [Variable] -> [String] -> ([Constraint],[Variable])
+parseLines' cs vs [] = (cs,vs)
+parseLines' cs vs (s:ss)
+	| True == isDom  = ((cs ++ cons ), (vs ++ ( domLine s : vars )))
+	| False == isDom = ((cs ++ ( constLine s : cons )), ( vs ++ vars ))
+	where
+	isDom = s =~ "Let"
+	(cons,vars) = parseLines ss
 
 --gets the constraint from a line
---constLine :: String -> Constraint
---constLine line = split!!0 Nothing (op, split!!1)
---	where
---	split = spliceOn " " line
---	op = getOp split!!1
+constLine :: String -> Constraint
+constLine line = Constraint ex1 op ex2
+	where
+	(opChar, split) = getWhatSplicedOn possEqualities line
+	op = getOp opChar
+	ex1 = makeExpr (split!!0)
+	ex2 = makeExpr (split!!1)
+
+makeExpr :: String -> Expr
+makeExpr p = VI p
 
 --gets the domain and variable name for a line
-domLine :: String -> (String, Domain)
-domLine line = (split!!0, dom)
+domLine :: String -> Variable
+domLine line = Variable (split!!1) dom
 	where
 	split = spliceOn " " line
-	dom = domGet (split!!2)
+	dom = domGet (split!!4)
 
 --gets the domain that a variable can span from a string
 domGet :: String -> Domain
@@ -41,11 +62,11 @@ nonConsecDomGet (s:ss) = (((read s)::Int) : nonConsecDomGet ss )
 getOp :: String -> Equ
 getOp sym
 	| sym == "==" = (==)
-	| sym == "/=" = (/=) -- :/
+	| sym == "!=" = (/=) -- /:
 	| sym == ">"  = (>) 
 	| sym == "<"  = (<)
-	| sym == "<=" = (<=) -- :)
-	| sym == ">=" = (>=) -- :(
+	| sym == "<=" = (<=) -- (:
+	| sym == ">=" = (>=) -- ):
 
 
 main = do

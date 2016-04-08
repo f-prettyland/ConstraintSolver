@@ -2,16 +2,15 @@
 import Solver
 import Helpful
 import System.Environment ( getArgs )
-import	Text.Regex.Posix
-import	Data.List 	( elemIndex )
+import Text.Regex.Posix
+import Data.List 	( elemIndex )
+import Data.Maybe ( fromJust )
 
 possEqualities = ["==", "!=", "<", ">", "<=", ">="]
-
 
 --creates subtype for parsing 
 parseLines :: [String] -> ([Constraint],[Variable])
 parseLines ss = parseLines' [] [] ss
-
 
 --todo: extend this to array defn
 parseLines' :: [Constraint] -> [Variable] -> [String] -> ([Constraint],[Variable])
@@ -32,8 +31,13 @@ constLine line = Constraint ex1 op ex2
 	ex1 = makeExpr (split!!0)
 	ex2 = makeExpr (split!!1)
 
+--assumes only string name of thing, no addition, no constraints
 makeExpr :: String -> Expr
-makeExpr p = VI p
+makeExpr expres
+	| poss /= Nothing = Term (fromJust poss)
+	| otherwise = VI expres
+	where
+	poss = maybeRead expres
 
 --gets the domain and variable name for a line
 domLine :: String -> Variable

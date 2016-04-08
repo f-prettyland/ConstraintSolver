@@ -11,6 +11,13 @@ data Expr = VI String
 	| Term Int
 	| Form Expr Oper Expr
 data Constraint  = Constraint Expr Equ Expr
+data Orr  = Orr Constraint Constraint
+
+--todo separate out the unary constraints
+solveIt :: ([Constraint],[Variable],[Orr],[Constraint]) -> [VariableValue]
+solveIt cs vs = 
+
+
 
 evCon :: [VariableValues] -> Constraint -> Bool
 evCon vv (Constraint ex1 eqOp ex2) = eqOp  (evEx vv ex1) (evEx vv ex2)

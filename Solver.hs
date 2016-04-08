@@ -13,9 +13,18 @@ data Expr = VI String
 data Constraint  = Constraint Expr Equ Expr
 data Orr  = Orr Constraint Constraint
 
---todo separate out the unary constraints
-solveIt :: ([Constraint],[Variable],[Orr],[Constraint]) -> [VariableValue]
-solveIt cs vs = 
+--todo separate out the unary constraints propigate them before input here
+solveIt :: ([Constraint],[Variable],[Orr]) -> Maybe [VariableValue]
+
+--	    current assignment  cnsts to sat    vars n doms   ORcnst   Possible succesful var allocation
+solveIt' :: [VariableValues] -> [Constraint] -> [Variable] -> [Orr] -> Maybe [VariableValue]
+solveIt' cs vs or un
+	| sfd == Just True	= 
+	| sfd == Just False	= Nothing
+	| sfd == Nothing	= 
+	where
+	--checks if is is satified or satifiable
+	satfied = 
 
 
 

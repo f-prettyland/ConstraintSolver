@@ -1,20 +1,21 @@
 module Solver where
 import Data.Maybe (fromJust)
 import LowLevel
+import DataTypes
 
 
 --todo separate out the unary constraints propigate them before input here
-solveIt :: ([Constraint],[Variable],[Orr]) -> Maybe [VariableValue]
+--solveIt :: ([Constraint],[Variable],[Orr]) -> Maybe [VariableValue]
 
 --	    current assignment  cnsts to sat    vars n doms   ORcnst   Possible succesful var allocation
-solveIt' :: [VariableValue] -> [Constraint] -> [Variable] -> [Orr] -> Maybe [VariableValue]
-solveIt' vv cs vs or un
-	| sfd == Just True	= vv
-	| sfd == Just False	= Nothing
-	| sfd == Nothing	= 
-	where
-	--checks if is is satified or satifiable
-	satfied = 
+--solveIt' :: [VariableValue] -> [Constraint] -> [Variable] -> [Orr] -> Maybe [VariableValue]
+--solveIt' vv cs vs or un
+--	| sfd == Just True	= vv
+--	| sfd == Just False	= Nothing
+--	| sfd == Nothing	= 
+--	where
+--	--checks if is is satified or satifiable
+--	satfied = 
 
 
 --todo, deal with unary
@@ -24,42 +25,51 @@ solveIt' vv cs vs or un
 
 arcsConsistent :: [(String, String)] -> [Constraint] -> [Variable] -> [Variable]
 arcsConsistent [] cs vs = vs
-arcsConsistent ((src,dest):arcs) cs vs
-	| numOfCons > 0 = arcsConsistent arcs cs reducedDomvs
+arcsConsistent ((src,dst):arcs) cs vs
+	| numOfCons > 0 = arcsConsistent arcs cs (replaceVar vs reducedDomvs)
 	| otherwise		= arcsConsistent arcs cs vs
 	where
-	consToCheck = getConstraintsFor [] (src,dest) cs  
+	consToCheck = getConstraintsFor [] (src,dst) cs  
 	numOfCons	= length consToCheck 
-	reducedDomvs= (reduceArcDom (src,dest) consToCheck vs)
+	reducedDomvs= (reduceArcDom (srcVar,dstVar) consToCheck)
+	srcVar		= getVar vs src 
+	dstVar		= getVar vs dst
 
 --Takes in an arc and reduces the domain
---reduceArcDom :: (String, String) -> [Constraint] -> [Variable] -> [Variable]
---reduceArcDom (src,dst) [] vs = vs
---reduceArcDom (src,dst) (c:cs) vs
---	| evCon 
---	where
---	/\[vv]/\ = ()
+reduceArcDom :: (Variable, Variable) -> [Constraint] -> Variable
+reduceArcDom (src,dst) [] = src
+reduceArcDom (src,dst) (con:cs) =
+	let redSrc = Variable (nameOf src) (Domain (getValidSourceDom (src,dst) con))
+		in reduceArcDom (redSrc, dst) cs
 
 --Recursively goes over all the values of the domain ensuring each can have a
 --	satisfied constraint, with at least one destination value
-getValidSourceDom :: (Variable,Variable) -> Constraint -> Domain
-getValidSourceDom ((Variable nam (Domain [])),_) _ = Domain []
+getValidSourceDom :: (Variable,Variable) -> Constraint -> [Int]
+getValidSourceDom ((Variable nam (Domain [])),_) _ = []
 getValidSourceDom (srcVar,dstVar) con
-	| isPoss == True= Domain ((d : (getValidSourceDom (srcVar,dstVar) con)))
-	| otherwise		= Domain (getValidSourceDom ((Variable nam dom),dstVar) con)
+	--calls this function on the remaining domain but appends the successful value to
+	--	the front
+	| isPoss 	= (d : (getValidSourceDom (srcVar,dstVar) con))
+	--creates a new variable with the element just tested not within the domain
+	--	and then calls itself upon this
+	| otherwise	= (getValidSourceDom ((Variable nam (Domain dom)),dstVar) con)
 	where
-	isPoss = pop
+	--breaking down the source of the arc's variable into it's name and domain parts
 	Variable nam (Domain (d:dom)) = srcVar
+	--testing the value taken from the top of the domain against all values of the 
+	--	source domain
+	isPoss = existsDestSatisfy dstVar (VariableValue nam d) con
+
 
 --Recursively check that for an assigned source variable there exists a possible
 --	destination value in the domain which together satisfy a single constraint
 existsDestSatisfy :: Variable -> VariableValue -> Constraint -> Bool
-existsDestSatisfy (Variable _ []) _ _ = False
+existsDestSatisfy (Variable _ (Domain [])) _ _ = False
 existsDestSatisfy (Variable dNam (Domain (q:dom))) v con
-	| satisfied = True	= True
+	| satisfied 		= True
 	| otherwise			= existsDestSatisfy (Variable dNam (Domain (dom))) v con
 	where
-	satisfied = evCon ((VariableValue dNam q):v) con
+	satisfied = evCon [(VariableValue dNam q),v] con
 
 --Evaluates a constraint
 evCon :: [VariableValue] -> Constraint -> Bool

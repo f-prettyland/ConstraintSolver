@@ -16,6 +16,19 @@ getVarVal (v:vs) s
 	| s == nameOf v	= Just (valOf v)
 	| otherwise	= getVarVal vs s
 
+--From the list of assigned variable finds the value, if not there returns Nothing
+getVar :: [Variable] -> String -> Variable
+getVar [] s = error ("Searched for non-defined variable: "++s)
+getVar (v:vs) s
+	| s == nameOf v	= v
+	| otherwise	= getVar vs s
+
+--From the list of assigned variable finds the value, if not there returns Nothing
+replaceVar :: [Variable] -> Variable -> [Variable]
+replaceVar [] repV = error ("Tried to replace non-defined variable: " ++ nameOf repV)
+replaceVar (v:vs) repV
+	| nameOf repV == nameOf v	= repV:vs
+	| otherwise					= (v:(replaceVar vs repV))
 
 --return constraints with these input variables in them
 --					soFarFound		vars2Find			allConst		Constrains with vars

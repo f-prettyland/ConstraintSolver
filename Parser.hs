@@ -5,6 +5,7 @@ import System.Environment ( getArgs )
 import Text.Regex.Posix
 import Data.List 	( elemIndex )
 import Data.Maybe ( fromJust )
+import DataTypes
 
 possEqualities = ["==", "!=", "<", ">", "<=", ">="]
 

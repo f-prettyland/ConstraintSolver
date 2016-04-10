@@ -1,13 +1,67 @@
 module LowLevel where
 import DataTypes
 
+--gets all the variables of a constraint and checks if there is only one
+varsInConst :: Constraint -> [String]
+varsInConst (Constraint ex1 op ex2) = (varsInExpr ex1) ++ (varsInExpr ex2) 
+
 --finds out if an expression contains a variable
-exprContainsVar :: String -> Expr -> Bool
-exprContainsVar v (Term t)		= False
-exprContainsVar v (VI name)
-	| v == name = True
-	| otherwise = False
-exprContainsVar v (Form ex1 op ex2)	= (exprContainsVar v ex1) || (exprContainsVar v ex2)
+varsInExpr :: Expr -> [String]
+varsInExpr (Term t)		= []
+varsInExpr (VI name)		= [name]
+varsInExpr (Form ex1 op ex2)	= varsInExpr ex1 ++ varsInExpr ex2
+
+--check for empty domains
+emptyDomains :: [Variable] -> Bool
+--got all the way through without finding an empty domain
+emptyDomains [] 								= False
+--there is an empty domain with in the current variable
+emptyDomains ((Variable nam (Domain [])):vs) 	= True
+--no empty domain, keep checking
+emptyDomains ((Variable nam (Domain dom)):vs) 	= emptyDomains vs
+
+--wrapper to make code more understandable in main solver
+createQueue :: [Variable] -> [(String,String)]
+createQueue vs = createQueue' vs vs
+
+-- Creates arcs for all variable to all other variables
+--				all vars 	need to make arcs For 	arcs made
+createQueue' :: [Variable] -> [Variable] -> [(String,String)]
+createQueue' _ [] = []
+createQueue' vs ((Variable nam (Domain dom)):vars) =
+	let 
+		arcsForCurr = getArcsForVar nam vs
+	in arcsForCurr ++ createQueue' vs vars 
+
+--creates arcs for one variable with this input as the source, ignoring an arc to self
+--				varName 	all vars 		arcs made
+getArcsForVar :: String -> [Variable] -> [(String,String)]
+getArcsForVar _ [] = []
+getArcsForVar vNam ((Variable nam (Domain dom)):vars)
+	| dstIsSelf	= getArcsForVar vNam vars
+	| otherwise	= ((vNam,nam):(getArcsForVar vNam vars))
+	where
+	dstIsSelf = (vNam==nam)
+
+--					arc which caused	all vars	current arcs 			old var 	new var 		new arcs
+addArcIfReduced :: (String,String) -> [Variable] -> [(String, String)] -> Variable -> Variable -> [(String, String)]
+addArcIfReduced (dst,src) vars ls (Variable oldNam (Domain oldDom)) (Variable newNam (Domain newDom))
+	| isUnchanged	= ls
+	| otherwise		= ls ++ newArcs
+	where
+	isUnchanged = ((length newDom)==(length oldDom))
+	--creates arcs without the arc from dst to src
+	newArcs = removeArc (getArcsForVar newNam vars) (dst,src) 
+
+--Takes in a list of arcs and removes one arc
+--				all arcs 			unwanted one		output arcs
+removeArc :: [(String,String)] -> (String,String) -> [(String,String)]
+removeArc [] _ = []
+removeArc ((src,dst):arcs) (unWantSrc,unWantDst)
+	| isUnWanted= removeArc arcs (unWantSrc,unWantDst)
+	| otherwise	= ((src,dst):(removeArc arcs (unWantSrc,unWantDst)))
+	where
+	isUnWanted = ((src == unWantSrc) &&(dst == unWantDst))
 
 --From the list of assigned variable finds the value, if not there returns Nothing
 getVarVal :: [VariableValue] -> String -> Maybe Int
@@ -49,3 +103,11 @@ getRelatedVarDom sofar nam (v:vs)
 	| otherwise		= getRelatedVarDom sofar nam vs
 	where
 	Variable vNam vDom = v
+
+--finds out if an expression contains a variable
+exprContainsVar :: String -> Expr -> Bool
+exprContainsVar v (Term t)		= False
+exprContainsVar v (VI name)
+	| v == name = True
+	| otherwise = False
+exprContainsVar v (Form ex1 op ex2)	= (exprContainsVar v ex1) || (exprContainsVar v ex2)

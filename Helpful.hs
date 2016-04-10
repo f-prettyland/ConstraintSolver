@@ -3,7 +3,6 @@ import Data.Char (isSpace)
 import Data.Text ( splitOn, pack, unpack )
 import Data.Maybe (fromJust)
 
-
 -------
 --STRING HANDLING
 -------

@@ -1,4 +1,6 @@
-let x be in 0..1
-let y be in 0..1
+Heuristic static
+
+Let x be in 0..1
+Let y be in 0..1
 
 x /= y

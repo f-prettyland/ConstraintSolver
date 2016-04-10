@@ -1,27 +1,34 @@
-
 import Solver
 import Helpful
+import Heuristics
+import DataTypes
 import System.Environment ( getArgs )
 import Text.Regex.Posix
 import Data.List 	( elemIndex )
 import Data.Maybe ( fromJust )
-import DataTypes
 
 possEqualities = ["==", "!=", "<", ">", "<=", ">="]
 
+solutionsToOutput :: [[VariableValue]] -> IO ()
+solutionsToOutput (s:slns) = solnToOutput s
+
+solnToOutput :: [VariableValue] -> IO ()
+solnToOutput = mapM_ (\(VariableValue na val) -> putStrLn (na++" = "++(show val))) 
+
 --creates subtype for parsing 
-parseLines :: [String] -> ([Constraint],[Variable])
-parseLines ss = parseLines' [] [] ss
+parseLines :: [String] -> (Heuristic, [Constraint],[Variable])
+parseLines ss = parseLines' (staticOrder) [] [] ss
 
 --todo: extend this to array defn
-parseLines' :: [Constraint] -> [Variable] -> [String] -> ([Constraint],[Variable])
-parseLines' cs vs [] = (cs,vs)
-parseLines' cs vs (s:ss)
-	| True == isDom  = ((cs ++ cons ), (vs ++ ( domLine s : vars )))
-	| False == isDom = ((cs ++ ( constLine s : cons )), ( vs ++ vars ))
+parseLines' :: Heuristic -> [Constraint] -> [Variable] -> [String] -> (Heuristic,[Constraint],[Variable])
+parseLines' heur cs vs [] = (heur, cs,vs)
+parseLines' heur cs vs (s:ss)
+	| True == isDom		= parseLines' heur cs (domLine s : vs) ss
+	| True == isHeur	= parseLines' (heurLine s) cs vs ss
+	| False == isDom	= parseLines' heur (constLine s :cs) vs ss
 	where
-	isDom = s =~ "Let"
-	(cons,vars) = parseLines ss
+	isDom				= s =~ "Let"
+	isHeur				= s =~ "Heuristic"
 
 --gets the constraint from a line
 constLine :: String -> Constraint
@@ -39,6 +46,14 @@ makeExpr expres
 	| otherwise = VI expres
 	where
 	poss = maybeRead expres
+
+heurLine :: String -> Heuristic
+heurLine line
+      | x == "static"	= staticOrder
+      | otherwise		= staticOrder
+      where
+      split = spliceOn " " line
+      x		= split!!1
 
 --gets the domain and variable name for a line
 domLine :: String -> Variable
@@ -62,7 +77,6 @@ nonConsecDomGet :: [String] -> [Int]
 nonConsecDomGet [] = []
 nonConsecDomGet (s:ss) = (((read s)::Int) : nonConsecDomGet ss )
 
-
 --takes in a string and finds the operator for it
 getOp :: String -> Equ
 getOp sym
@@ -73,9 +87,18 @@ getOp sym
 	| sym == "<=" = (<=) -- (:
 	| sym == ">=" = (>=) -- ):
 
+main = do	args <- getArgs
+		constraintFile <- readFile (args !! 0)
+		let cnstLines = lines constraintFile
+		let (her, pop, vars) = parseLines cnstLines
+		let solns 			= solveIt her pop vars []
+		solutionsToOutput solns
 
-main = do
-	args <- getArgs
-	constraintFile <- readFile (args !! 0)
-	let cnstLines = Prelude.lines constraintFile
-	print ("g")
+--todo: removes
+		--let (VariableValue op val)	= (solns!!0)!!0
+		--let (Variable op dom)= vars!!0
+		--print (cnstLines!!2)
+--		let (heur, cons, vs) = 
+		
+		--print(op)
+--		

@@ -22,3 +22,9 @@ instance NameFind Variable where
 	nameOf (Variable nam _) = nam
 instance NameFind VariableValue where
 	nameOf (VariableValue nam _) = nam
+instance NameFind Constraint where
+	nameOf (Constraint ex1 op ex2) = (nameOf ex1)++" oper " ++(nameOf ex2)
+instance NameFind Expr where
+	nameOf (VI var) = var 
+	nameOf (Term num) = show num 
+	nameOf (Form ex1 op ex2) = (nameOf ex1)++" oper " ++ (nameOf ex2)

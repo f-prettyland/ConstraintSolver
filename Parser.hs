@@ -7,9 +7,11 @@ import Text.Regex.Posix
 import Data.List 	( elemIndex )
 import Data.Maybe ( fromJust )
 
+import Debug.Trace (trace)
 possEqualities = ["==", "!=", "<", ">", "<=", ">="]
 
 solutionsToOutput :: [[VariableValue]] -> IO ()
+solutionsToOutput [] = putStrLn("No solutions found")
 solutionsToOutput (s:slns) = solnToOutput s
 
 solnToOutput :: [VariableValue] -> IO ()
@@ -23,12 +25,14 @@ parseLines ss = parseLines' (staticOrder) [] [] ss
 parseLines' :: Heuristic -> [Constraint] -> [Variable] -> [String] -> (Heuristic,[Constraint],[Variable])
 parseLines' heur cs vs [] = (heur, cs,vs)
 parseLines' heur cs vs (s:ss)
-	| True == isDom		= parseLines' heur cs (domLine s : vs) ss
-	| True == isHeur	= parseLines' (heurLine s) cs vs ss
-	| False == isDom	= parseLines' heur (constLine s :cs) vs ss
+	| isDom		= parseLines' heur cs (domLine s : vs) ss
+	| isHeur	= parseLines' (heurLine s) cs vs ss
+	| isConst	= parseLines' heur (constLine s :cs) vs ss
+	| otherwise	= parseLines' heur cs vs ss
 	where
 	isDom				= s =~ "Let"
 	isHeur				= s =~ "Heuristic"
+	isConst				= s =~ "(==|!=|<|>|<=|>=)"
 
 --gets the constraint from a line
 constLine :: String -> Constraint
@@ -43,7 +47,7 @@ constLine line = Constraint ex1 op ex2
 makeExpr :: String -> Expr
 makeExpr expres
 	| poss /= Nothing = Term (fromJust poss)
-	| otherwise = VI expres
+	| otherwise = VI (trim expres)
 	where
 	poss = maybeRead expres
 
@@ -57,7 +61,7 @@ heurLine line
 
 --gets the domain and variable name for a line
 domLine :: String -> Variable
-domLine line = Variable (split!!1) dom
+domLine line = Variable (trim (split!!1)) dom
 	where
 	split = spliceOn " " line
 	dom = domGet (split!!4)
@@ -88,17 +92,9 @@ getOp sym
 	| sym == ">=" = (>=) -- ):
 
 main = do	args <- getArgs
-		constraintFile <- readFile (args !! 0)
+		--constraintFile <- readFile (args !! 0)
+		constraintFile <- (readFile "test.cnst")
 		let cnstLines = lines constraintFile
 		let (her, pop, vars) = parseLines cnstLines
-		let solns 			= solveIt her pop vars []
+		let solns 			= trace (nameOf(pop!!0)) $solveIt her pop vars []
 		solutionsToOutput solns
-
---todo: removes
-		--let (VariableValue op val)	= (solns!!0)!!0
-		--let (Variable op dom)= vars!!0
-		--print (cnstLines!!2)
---		let (heur, cons, vs) = 
-		
-		--print(op)
---		

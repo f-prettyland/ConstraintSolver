@@ -1,6 +1,8 @@
 module LowLevel where
 import DataTypes
 
+import Debug.Trace (trace)
+
 --gets all the variables of a constraint and checks if there is only one
 varsInConst :: Constraint -> [String]
 varsInConst (Constraint ex1 op ex2) = (varsInExpr ex1) ++ (varsInExpr ex2) 
@@ -11,14 +13,18 @@ varsInExpr (Term t)		= []
 varsInExpr (VI name)		= [name]
 varsInExpr (Form ex1 op ex2)	= varsInExpr ex1 ++ varsInExpr ex2
 
---check for empty domains
 emptyDomains :: [Variable] -> Bool
 --got all the way through without finding an empty domain
-emptyDomains [] 								= False
---there is an empty domain with in the current variable
-emptyDomains ((Variable nam (Domain [])):vs) 	= True
---no empty domain, keep checking
-emptyDomains ((Variable nam (Domain dom)):vs) 	= emptyDomains vs
+--emptyDomains [] = trace ("leftEmp") $ False
+emptyDomains [(Variable n (Domain dom))]
+	| dom == []		= True
+	--no empty domain, keep checking
+	| otherwise		= False
+emptyDomains ((Variable n (Domain dom)):vs) 
+	--there is an empty domain with in the current variable
+	| dom == []		=  True
+	--no empty domain, keep checking
+	| otherwise		= emptyDomains vs
 
 --wrapper to make code more understandable in main solver
 createQueue :: [Variable] -> [(String,String)]
@@ -39,13 +45,13 @@ getArcsForVar :: String -> [Variable] -> [(String,String)]
 getArcsForVar _ [] = []
 getArcsForVar vNam ((Variable nam (Domain dom)):vars)
 	| dstIsSelf	= getArcsForVar vNam vars
-	| otherwise	= ((vNam,nam):(getArcsForVar vNam vars))
+	| otherwise	= ((nam,vNam):(getArcsForVar vNam vars))
 	where
 	dstIsSelf = (vNam==nam)
 
 --					arc which caused	all vars	current arcs 			old var 	new var 		new arcs
 addArcIfReduced :: (String,String) -> [Variable] -> [(String, String)] -> Variable -> Variable -> [(String, String)]
-addArcIfReduced (dst,src) vars ls (Variable oldNam (Domain oldDom)) (Variable newNam (Domain newDom))
+addArcIfReduced (src,dst) vars ls (Variable oldNam (Domain oldDom)) (Variable newNam (Domain newDom))
 	| isUnchanged	= ls
 	| otherwise		= ls ++ newArcs
 	where
@@ -84,9 +90,16 @@ replaceVar (v:vs) repV
 	| nameOf repV == nameOf v	= repV:vs
 	| otherwise					= (v:(replaceVar vs repV))
 
+removeVar :: [Variable] -> String -> [Variable]
+removeVar [] remNam = error ("Tried to replace non-defined variable: " ++ remNam)
+removeVar (v:vs) remNam
+	| remNam == nameOf v	= vs
+	| otherwise				= (v:(removeVar vs remNam))
+
 --return constraints with these input variables in them
 --					soFarFound		vars2Find			allConst		Constrains with vars
 getConstraintsFor :: [Constraint] -> (String, String) -> [Constraint] -> [Constraint]
+getConstraintsFor conCons (src, dst) [] = conCons
 getConstraintsFor conCons (src, dst) (c:cs)
 	| hasBoth	= getConstraintsFor (c:conCons) (src,dst) cs
 	| otherwise	= getConstraintsFor conCons (src,dst) cs
@@ -109,5 +122,5 @@ exprContainsVar :: String -> Expr -> Bool
 exprContainsVar v (Term t)		= False
 exprContainsVar v (VI name)
 	| v == name = True
-	| otherwise = False
+	| otherwise =  False
 exprContainsVar v (Form ex1 op ex2)	= (exprContainsVar v ex1) || (exprContainsVar v ex2)

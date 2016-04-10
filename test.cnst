@@ -3,4 +3,4 @@ Heuristic static
 Let x be in 0..1
 Let y be in 0..1
 
-x /= y
+x != y

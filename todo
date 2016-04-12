@@ -1,4 +1,0 @@
-todo longterm:
-	merge arcConsistency with empty doms to make solve it and branchIt closer
-	change to use varsInExpr for exprContainsVar
-	incorporate ORs and dual rep

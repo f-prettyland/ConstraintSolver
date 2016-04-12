@@ -1,5 +1,5 @@
 all:
-	ghc Solver.hs
+	ghc -prof -fprof-auto -rtsopts --make -o Solver ./Parser.hs
 
 clean:
 	rm -f *.hi *.o Solver

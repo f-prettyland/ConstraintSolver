@@ -1,5 +1,49 @@
 module LowLevel where
 import DataTypes
+import Data.Maybe (fromJust)
+
+
+--Evaluates all constraints
+--	If any constraint fails return false
+--	If any constraint is yet to be satisfied return Nothing
+--	If all are satisfied return True
+evAllCon :: [VariableValue] -> [Constraint] -> Maybe Bool
+evAllCon vv []		= Just True
+evAllCon vv (c:cs)
+	| currConSat == Just False 	= Just False
+	| allOtherCons == Just False= Just False
+	| otherwise				 	= currConSat
+	where
+	currConSat = evCon vv c
+	allOtherCons = evAllCon vv cs
+
+--Evaluates a constraint
+evCon :: [VariableValue] -> Constraint -> Maybe Bool
+evCon vv (Constraint ex1 eqOp ex2)
+--trace ("not goonaa ") $
+	| unSat =  Nothing
+	--trace ((show (nameOf (vv!!0)))++(show (nameOf (vv!!1)))++(show conRes)) $
+	| otherwise	=  Just conRes
+	where
+	val1 = (evEx vv ex1) 
+	val2 = (evEx vv ex2)
+	conRes= (eqOp  (fromJust val1) (fromJust val2))
+	unSat= ((val1 == Nothing) || (val2 == Nothing))
+
+--Evaluates an expression, possibly returning nothing
+evEx :: [VariableValue] -> Expr -> Maybe Int
+evEx vv (Term t) 		= (Just t)
+evEx vv (VI name)		= (getVarVal vv name) 
+evEx vv (Form ex1 op ex2)	= (evFrm vv ex1 op ex2)
+
+--Evaluates a formula where a 
+evFrm :: [VariableValue] -> Expr -> Oper -> Expr -> Maybe Int
+evFrm vv ex1 op ex2
+	| ((val1 == Nothing) || (val2 == Nothing)) = Nothing
+	| otherwise				   = Just (op (fromJust val1) (fromJust val2))
+	where
+	val1 = evEx vv ex1
+	val2 = evEx vv ex2
 
 --gets all the variables of a constraint and checks if there is only one
 varsInConst :: Constraint -> [String]

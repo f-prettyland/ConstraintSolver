@@ -1,5 +1,5 @@
 import Solver
-import Helpful
+import StringHandling
 import Heuristics
 import DataTypes
 import System.Environment ( getArgs )

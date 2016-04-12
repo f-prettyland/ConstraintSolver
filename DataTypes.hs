@@ -1,9 +1,8 @@
 module DataTypes where
 
-newtype VarId	 	= VarId Int
 newtype Domain    	= Domain [Int]
 type Oper	 		= (Int->Int->Int)
-type Equ     		= (Int->Int->Bool)
+type Equ 			= (Int->Int->Bool)
 type Heuristic 		= ([Variable]->(Variable,[Variable]))
 data Variable 		= Variable String Domain
 data VariableValue 	= VariableValue String Int

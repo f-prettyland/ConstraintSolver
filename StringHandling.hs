@@ -1,4 +1,4 @@
-module Helpful where
+module StringHandling where
 import Data.Char (isSpace)
 import Data.Text ( splitOn, pack, unpack )
 import Data.Maybe (fromJust)

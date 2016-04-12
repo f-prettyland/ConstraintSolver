@@ -1,0 +1,269 @@
+	Tue Apr 12 17:34 2016 Time and Allocation Profiling Report  (Final)
+
+	   Parser +RTS -p -RTS ./models/crystalMaze-static.cnst
+
+	total time  =        0.04 secs   (45 ticks @ 1000 us, 1 processor)
+	total alloc =  38,605,560 bytes  (excludes profiling overheads)
+
+COST CENTRE               MODULE         %time %alloc
+
+exprContainsVar           LowLevel        24.4    4.9
+getConstraintsFor.hasBoth LowLevel        17.8   53.7
+getConstraintsFor         LowLevel        11.1   21.0
+getVarVal                 LowLevel         6.7    1.4
+parseLines'.isConst       Main             4.4    0.2
+checkPossible             Solver           4.4    3.6
+getValidSourceDom         ArcConsistent    2.2    0.9
+getValidSourceDom.nam     ArcConsistent    2.2    0.0
+evCon                     LowLevel         2.2    1.8
+evEx                      LowLevel         2.2    0.1
+evFrm                     LowLevel         2.2    1.3
+emptyDomains              LowLevel         2.2    0.0
+getConstraintsFor.ex2     LowLevel         2.2    0.0
+main                      Main             2.2    0.4
+parseLines'.isDom         Main             2.2    0.2
+constLine                 Main             2.2    0.0
+makeExpr                  Main             2.2    0.1
+maybeRead                 StringHandling   2.2    2.1
+dBranchIt                 Solver           2.2    0.3
+checkPossible.nam         Solver           2.2    0.0
+
+
+                                                                                    individual     inherited
+COST CENTRE                               MODULE                  no.     entries  %time %alloc   %time %alloc
+
+MAIN                                      MAIN                     73           0    0.0    0.0   100.0  100.0
+ CAF                                      Solver                  145           0    0.0    0.0     0.0    0.0
+ CAF                                      StringHandling          144           0    0.0    0.0     0.0    0.0
+  trim                                    StringHandling          191           1    0.0    0.0     0.0    0.0
+   trim.f                                 StringHandling          193           1    0.0    0.0     0.0    0.0
+ CAF                                      DataTypes               142           0    0.0    0.0     0.0    0.0
+  possOperations                          DataTypes               207           1    0.0    0.0     0.0    0.0
+  operationReg                            DataTypes               188           1    0.0    0.0     0.0    0.0
+  possEqualities                          DataTypes               183           1    0.0    0.0     0.0    0.0
+  constraintReg                           DataTypes               160           1    0.0    0.0     0.0    0.0
+  heuristicKey                            DataTypes               158           1    0.0    0.0     0.0    0.0
+  domKey                                  DataTypes               156           1    0.0    0.0     0.0    0.0
+ CAF                                      Main                    141           0    0.0    0.0   100.0   99.9
+  solnToOutput                            Main                    365           1    0.0    0.0     0.0    0.0
+  main                                    Main                    146           1    2.2    0.4   100.0   99.9
+   main.allSolns                          Main                    364           1    0.0    0.0     0.0    0.0
+   main.her                               Main                    293           1    0.0    0.0     0.0    0.0
+   main.pop                               Main                    171           1    0.0    0.0     0.0    0.0
+   main.cnstLines                         Main                    154           1    0.0    0.2     0.0    0.2
+   main.(...)                             Main                    151           1    0.0    0.0    13.3    4.5
+    parseLines                            Main                    152           1    0.0    0.0    13.3    4.5
+     parseLines'                          Main                    153          87    0.0    0.0    13.3    4.5
+      heurLine                            Main                    294           1    0.0    0.0     0.0    0.0
+       heurLine.split                     Main                    296           1    0.0    0.0     0.0    0.0
+        spliceOn                          StringHandling          297           1    0.0    0.0     0.0    0.0
+         unstream/resize                  Data.Text.Fusion        298           2    0.0    0.0     0.0    0.0
+       heurLine.x                         Main                    295           1    0.0    0.0     0.0    0.0
+      domLine                             Main                    211           8    0.0    0.0     0.0    0.4
+       domLine.dom                        Main                    244           8    0.0    0.0     0.0    0.3
+        domGet                            Main                    245           8    0.0    0.0     0.0    0.3
+         domGet.high                      Main                    249           8    0.0    0.1     0.0    0.1
+         domGet.split                     Main                    247           8    0.0    0.0     0.0    0.0
+          spliceOn                        StringHandling          248           8    0.0    0.0     0.0    0.0
+         domGet.low                       Main                    246           8    0.0    0.1     0.0    0.1
+       domLine.split                      Main                    217           8    0.0    0.0     0.0    0.1
+        spliceOn                          StringHandling          218           8    0.0    0.0     0.0    0.1
+         unstream/resize                  Data.Text.Fusion        219          16    0.0    0.0     0.0    0.0
+       trim                               StringHandling          215           0    0.0    0.0     0.0    0.0
+        trim.f                            StringHandling          216           0    0.0    0.0     0.0    0.0
+      constLine                           Main                    175          62    2.2    0.0     6.7    3.6
+       constLine.opChar                   Main                    281          62    0.0    0.0     0.0    0.0
+       constLine.op                       Main                    279          62    0.0    0.0     0.0    0.0
+        getOp                             Main                    280          62    0.0    0.0     0.0    0.0
+       constLine.ex2                      Main                    195          62    0.0    0.0     4.4    1.9
+        makeExpr                          Main                    196         130    2.2    0.1     4.4    1.9
+         makeExpr.opChar                  Main                    285          34    0.0    0.0     0.0    0.0
+         getCalc                          Main                    284          34    0.0    0.0     0.0    0.0
+         trim                             StringHandling          231           0    0.0    0.0     0.0    0.0
+          trim.f                          StringHandling          232           0    0.0    0.0     0.0    0.0
+         makeExpr.(...)                   Main                    205          34    0.0    0.0     0.0    0.1
+          getWhatSplicedOn                StringHandling          206          51    0.0    0.0     0.0    0.1
+           getWhatSplicedOn.res           StringHandling          209          51    0.0    0.0     0.0    0.1
+            spliceOn                      StringHandling          210          51    0.0    0.1     0.0    0.1
+           getWhatSplicedOn.sucSplit      StringHandling          208          51    0.0    0.0     0.0    0.0
+         makeExpr.split                   Main                    204          34    0.0    0.0     0.0    0.0
+         makeExpr.poss                    Main                    198          96    0.0    0.0     2.2    1.4
+          trim                            StringHandling          200           0    0.0    0.0     0.0    0.0
+           trim.f                         StringHandling          201           0    0.0    0.0     0.0    0.0
+          maybeRead                       StringHandling          199          96    2.2    1.3     2.2    1.3
+         makeExpr.isExpr                  Main                    197         130    0.0    0.3     0.0    0.3
+       constLine.(...)                    Main                    181          62    0.0    0.0     0.0    0.5
+        getWhatSplicedOn                  StringHandling          182         124    0.0    0.0     0.0    0.5
+         getWhatSplicedOn.res             StringHandling          185         124    0.0    0.0     0.0    0.5
+          spliceOn                        StringHandling          186         124    0.0    0.4     0.0    0.5
+           unstream/resize                Data.Text.Fusion        187         124    0.0    0.1     0.0    0.1
+         getWhatSplicedOn.sucSplit        StringHandling          184         124    0.0    0.0     0.0    0.0
+       constLine.split                    Main                    180          62    0.0    0.0     0.0    0.0
+       constLine.ex1                      Main                    177          62    0.0    0.0     0.0    1.0
+        makeExpr                          Main                    178          62    0.0    0.0     0.0    1.0
+         trim                             StringHandling          228           0    0.0    0.0     0.0    0.0
+          trim.f                          StringHandling          229           0    0.0    0.0     0.0    0.0
+         makeExpr.poss                    Main                    189          62    0.0    0.0     0.0    0.8
+          trim                            StringHandling          192           0    0.0    0.0     0.0    0.0
+           trim.f                         StringHandling          194           0    0.0    0.0     0.0    0.0
+          maybeRead                       StringHandling          190          62    0.0    0.8     0.0    0.8
+         makeExpr.isExpr                  Main                    179          62    0.0    0.1     0.0    0.1
+      parseLines'.isConst                 Main                    159          77    4.4    0.2     4.4    0.2
+      parseLines'.isHeur                  Main                    157          78    0.0    0.2     0.0    0.2
+      parseLines'.isDom                   Main                    155          86    2.2    0.2     2.2    0.2
+   main.vars                              Main                    150           1    0.0    0.0     0.0    0.0
+   main.solns                             Main                    148           1    0.0    0.0    84.4   94.6
+    solveIt                               Solver                  149           1    0.0    0.0    84.4   94.6
+     solveIt.heurPick                     Solver                  292           1    0.0    0.0     0.0    0.0
+      staticOrder                         Heuristics              299           1    0.0    0.0     0.0    0.0
+     dBranchIt                            Solver                  291         235    2.2    0.3    68.9   83.6
+      dBranchIt.dom                       Solver                  362         151    0.0    0.0     0.0    0.0
+      dBranchIt.(...)                     Solver                  357         159    0.0    0.0     0.0    0.0
+      dBranchIt.q                         Solver                  356         159    0.0    0.0     0.0    0.0
+      dBranchIt.nam                       Solver                  314         159    0.0    0.0     0.0    0.0
+      dBranchIt.solution                  Solver                  302         159    0.0    0.0    66.7   83.3
+       checkBranch'                       Solver                  303         159    0.0    0.1    66.7   83.3
+        checkBranch'.heurPick             Solver                  360          83    0.0    0.0     0.0    0.0
+         staticOrder                      Heuristics              361          83    0.0    0.0     0.0    0.0
+        checkBranch'.(...)                Solver                  313         158    0.0    0.0     0.0    0.0
+        checkBranch'.mostRecent           Solver                  312         158    0.0    0.0     0.0    0.0
+        checkBranch'.queue                Solver                  308         158    0.0    0.0     0.0    0.2
+         nameOf                           DataTypes               311         158    0.0    0.0     0.0    0.0
+         getArcsForVar                    LowLevel                309         752    0.0    0.2     0.0    0.2
+          getArcsForVar.dstIsSelf         LowLevel                310         594    0.0    0.0     0.0    0.0
+        checkBranch'.newVs                Solver                  306         158    0.0    0.0    64.4   82.9
+         forwadProp                       Solver                  307         752    0.0    0.3    64.4   82.9
+          forwadProp.srcVar               Solver                  329         594    0.0    0.0     0.0    0.1
+           getVar                         LowLevel                330        1509    0.0    0.1     0.0    0.1
+            nameOf                        DataTypes               331        1509    0.0    0.0     0.0    0.0
+          forwadProp.redDomsrcV           Solver                  325         594    0.0    0.0    15.6    9.5
+           evaluateArcConstraints         Solver                  326        1934    0.0    0.4    15.6    9.5
+            evaluateArcConstraints.redSrc Solver                  327        1340    0.0    0.0    15.6    9.0
+             checkPossible                Solver                  332        3428    4.4    3.6    15.6    9.0
+              checkPossible.dom           Solver                  359        2384    0.0    0.0     0.0    0.0
+              checkPossible.nextIter      Solver                  358        2384    0.0    0.0     0.0    0.0
+              checkPossible.d             Solver                  354        2639    0.0    0.0     0.0    0.0
+              checkPossible.(...)         Solver                  344        2639    0.0    0.0     0.0    0.0
+              checkPossible.nam           Solver                  343        2639    2.2    0.0     2.2    0.0
+              checkPossible.satisfied     Solver                  336        2639    0.0    0.5     8.9    4.7
+               evCon                      LowLevel                337        2639    2.2    1.3     8.9    4.2
+                evCon.conRes              LowLevel                352        2639    0.0    0.3     0.0    0.3
+                evCon.val2                LowLevel                345        2639    0.0    0.0     4.4    1.6
+                 evEx                     LowLevel                346        5901    0.0    0.1     4.4    1.6
+                  getVarVal               LowLevel                349        5278    2.2    0.6     2.2    0.6
+                   valOf                  DataTypes               355        2639    0.0    0.0     0.0    0.0
+                   nameOf                 DataTypes               350        5278    0.0    0.0     0.0    0.0
+                  evFrm                   LowLevel                347        1631    2.2    1.0     2.2    1.0
+                   evFrm.val2             LowLevel                351        1631    0.0    0.0     0.0    0.0
+                   evFrm.val1             LowLevel                348        1631    0.0    0.0     0.0    0.0
+                evCon.val1                LowLevel                339        2639    0.0    0.0     2.2    0.4
+                 evEx                     LowLevel                340        2639    0.0    0.0     2.2    0.4
+                  getVarVal               LowLevel                341        2639    2.2    0.4     2.2    0.4
+                   valOf                  DataTypes               353        2639    0.0    0.0     0.0    0.0
+                   nameOf                 DataTypes               342        2639    0.0    0.0     0.0    0.0
+                evCon.unSat               LowLevel                338        2639    0.0    0.4     0.0    0.4
+              checkPossible.canBeSat      Solver                  335        2639    0.0    0.5     0.0    0.5
+              checkPossible.isEmpty       Solver                  333        3428    0.0    0.2     0.0    0.2
+               emptyDomains               LowLevel                334        3428    0.0    0.0     0.0    0.0
+             nameOf                       DataTypes               328        1340    0.0    0.0     0.0    0.0
+          replaceVar                      LowLevel                323        1440    0.0    0.3     0.0    0.3
+           nameOf                         DataTypes               324        2880    0.0    0.0     0.0    0.0
+          forwadProp.consToCheck          Solver                  316         594    0.0    0.0    48.9   72.7
+           getConstraintsFor              LowLevel                317       37422   11.1   19.2    48.9   72.7
+            getConstraintsFor.ex2         LowLevel                322       36828    2.2    0.0     2.2    0.0
+            getConstraintsFor.(...)       LowLevel                321       36828    0.0    0.0     0.0    0.0
+            getConstraintsFor.ex1         LowLevel                320       36828    0.0    0.0     0.0    0.0
+            getConstraintsFor.hasBoth     LowLevel                318       36828   17.8   49.1    35.6   53.5
+             exprContainsVar              LowLevel                319      213447   17.8    4.4    17.8    4.4
+          forwadProp.numOfCons            Solver                  315         594    0.0    0.0     0.0    0.0
+        checkBranch'.unSfiable            Solver                  304         158    0.0    0.0     2.2    0.0
+         emptyDomains                     LowLevel                305         452    2.2    0.0     2.2    0.0
+      dBranchIt.(...)                     Solver                  301         235    0.0    0.0     0.0    0.0
+      dBranchIt.fullDom                   Solver                  300         235    0.0    0.0     0.0    0.0
+     solveIt.newCons                      Solver                  223           1    0.0    0.0     0.0    0.0
+     solveIt.(...)                        Solver                  169           1    0.0    0.0     0.0    0.1
+      nodesConsistent                     ArcConsistent           170          63    0.0    0.0     0.0    0.1
+       nodesConsistent.resCon             ArcConsistent           233          62    0.0    0.0     0.0    0.0
+       nodesConsistent.(...)              ArcConsistent           203          62    0.0    0.0     0.0    0.0
+       nodesConsistent.resVar             ArcConsistent           202          62    0.0    0.0     0.0    0.0
+       nodesConsistent.varNames           ArcConsistent           173          62    0.0    0.0     0.0    0.0
+        varsInConst                       LowLevel                174          62    0.0    0.0     0.0    0.0
+         varsInExpr                       LowLevel                176         192    0.0    0.0     0.0    0.0
+       nodesConsistent.isUnaryConst       ArcConsistent           172          62    0.0    0.0     0.0    0.0
+     solveIt.ncVars                       Solver                  168           1    0.0    0.0     0.0    0.0
+     solveIt.queue                        Solver                  165           1    0.0    0.0     0.0    0.0
+      createQueue                         LowLevel                166           1    0.0    0.0     0.0    0.0
+       createQueue'                       LowLevel                167           9    0.0    0.0     0.0    0.0
+        createQueue'.arcsForCurr          LowLevel                212           8    0.0    0.0     0.0    0.0
+         getArcsForVar                    LowLevel                213          72    0.0    0.0     0.0    0.0
+          getArcsForVar.dstIsSelf         LowLevel                214          64    0.0    0.0     0.0    0.0
+     solveIt.acVars                       Solver                  163           1    0.0    0.0    15.6   11.0
+      arcsConsistent                      ArcConsistent           164          57    0.0    0.0    15.6   11.0
+       arcsConsistent.dstVar              ArcConsistent           256          56    0.0    0.0     0.0    0.0
+        getVar                            LowLevel                257         252    0.0    0.0     0.0    0.0
+         nameOf                           DataTypes               258         252    0.0    0.0     0.0    0.0
+       arcsConsistent.srcVar              ArcConsistent           240          56    0.0    0.0     0.0    0.0
+        getVar                            LowLevel                241         252    0.0    0.0     0.0    0.0
+         nameOf                           DataTypes               242         252    0.0    0.0     0.0    0.0
+       arcsConsistent.redDomsrcV          ArcConsistent           236          56    0.0    0.0     8.9    4.0
+        reduceArcDom                      ArcConsistent           237         180    0.0    0.0     8.9    4.0
+         reduceArcDom.redSrc              ArcConsistent           238         124    0.0    0.0     8.9    3.9
+          getValidSourceDom               ArcConsistent           243        1025    2.2    0.9     8.9    3.9
+           getValidSourceDom.dom          ArcConsistent           290         901    0.0    0.0     0.0    0.0
+           getValidSourceDom.nextIter     ArcConsistent           289         901    0.0    0.0     0.0    0.0
+           getValidSourceDom.d            ArcConsistent           283         914    0.0    0.0     0.0    0.0
+           getValidSourceDom.(...)        ArcConsistent           270         914    0.0    0.0     0.0    0.0
+           getValidSourceDom.nam          ArcConsistent           269         914    2.2    0.0     2.2    0.0
+           getValidSourceDom.isPoss       ArcConsistent           252         914    0.0    0.1     4.4    2.9
+            existsDestSatisfy             ArcConsistent           253        1004    0.0    0.9     4.4    2.9
+             existsDestSatisfy.dom        ArcConsistent           288          90    0.0    0.0     0.0    0.0
+             existsDestSatisfy.q          ArcConsistent           287        1004    0.0    0.0     0.0    0.0
+             existsDestSatisfy.(...)      ArcConsistent           268        1004    0.0    0.0     0.0    0.0
+             existsDestSatisfy.dNam       ArcConsistent           267        1004    0.0    0.0     0.0    0.0
+             existsDestSatisfy.satisfied  ArcConsistent           260        1004    0.0    0.2     4.4    1.7
+              evCon                       LowLevel                261        1004    0.0    0.5     4.4    1.5
+               evCon.conRes               LowLevel                278        1004    0.0    0.1     0.0    0.1
+               evCon.val2                 LowLevel                271        1004    0.0    0.0     2.2    0.5
+                evEx                      LowLevel                272        2088    0.0    0.0     2.2    0.5
+                 getVarVal                LowLevel                275        1467    2.2    0.2     2.2    0.2
+                  valOf                   DataTypes               286        1004    0.0    0.0     0.0    0.0
+                  nameOf                  DataTypes               276        1467    0.0    0.0     0.0    0.0
+                 evFrm                    LowLevel                273         542    0.0    0.3     0.0    0.3
+                  evFrm.val2              LowLevel                277         542    0.0    0.0     0.0    0.0
+                  evFrm.val1              LowLevel                274         542    0.0    0.0     0.0    0.0
+               evCon.val1                 LowLevel                263        1004    0.0    0.0     2.2    0.2
+                evEx                      LowLevel                264        1004    2.2    0.0     2.2    0.2
+                 getVarVal                LowLevel                265        1545    0.0    0.2     0.0    0.2
+                  valOf                   DataTypes               282        1004    0.0    0.0     0.0    0.0
+                  nameOf                  DataTypes               266        1545    0.0    0.0     0.0    0.0
+               evCon.unSat                LowLevel                262        1004    0.0    0.2     0.0    0.2
+             existsDestSatisfy.canBeSat   ArcConsistent           259        1004    0.0    0.2     0.0    0.2
+             existsDestSatisfy.isEmpty    ArcConsistent           254        1004    0.0    0.1     0.0    0.1
+              emptyDomains                LowLevel                255        1004    0.0    0.0     0.0    0.0
+           getValidSourceDom.isEmpty      ArcConsistent           250         914    0.0    0.1     0.0    0.1
+            emptyDomains                  LowLevel                251         914    0.0    0.0     0.0    0.0
+          nameOf                          DataTypes               239         124    0.0    0.0     0.0    0.0
+       replaceVar                         LowLevel                234         252    0.0    0.1     0.0    0.1
+        nameOf                            DataTypes               235         504    0.0    0.0     0.0    0.0
+       arcsConsistent.consToCheck         ArcConsistent           221          56    0.0    0.0     6.7    6.9
+        getConstraintsFor                 LowLevel                222        3528    0.0    1.8     6.7    6.9
+         getConstraintsFor.ex2            LowLevel                230        3472    0.0    0.0     0.0    0.0
+         getConstraintsFor.(...)          LowLevel                227        3472    0.0    0.0     0.0    0.0
+         getConstraintsFor.ex1            LowLevel                226        3472    0.0    0.0     0.0    0.0
+         getConstraintsFor.hasBoth        LowLevel                224        3472    0.0    4.7     6.7    5.1
+          exprContainsVar                 LowLevel                225       19950    6.7    0.4     6.7    0.4
+       arcsConsistent.numOfCons           ArcConsistent           220          56    0.0    0.0     0.0    0.0
+     solveIt.unSfiable                    Solver                  161           1    0.0    0.0     0.0    0.0
+      emptyDomains                        LowLevel                162           8    0.0    0.0     0.0    0.0
+   solutionsToOutput                      Main                    147           1    0.0    0.0     0.0    0.1
+    solnToOutput                          Main                    366           0    0.0    0.0     0.0    0.1
+     solnToOutput.\                       Main                    367           8    0.0    0.1     0.0    0.1
+ CAF                                      LowLevel                140           0    0.0    0.0     0.0    0.0
+ CAF                                      Data.Text.Array         131           0    0.0    0.0     0.0    0.0
+ CAF                                      Text.Read.Lex           114           0    0.0    0.0     0.0    0.0
+ CAF                                      GHC.IO.Encoding         108           0    0.0    0.0     0.0    0.0
+ CAF                                      GHC.IO.Handle.FD        106           0    0.0    0.1     0.0    0.1
+ CAF                                      GHC.Conc.Signal          92           0    0.0    0.0     0.0    0.0
+ CAF                                      GHC.IO.Encoding.Iconv    91           0    0.0    0.0     0.0    0.0
+ CAF                                      GHC.IO.FD                90           0    0.0    0.0     0.0    0.0
+  main                                    Main                    363           0    0.0    0.0     0.0    0.0

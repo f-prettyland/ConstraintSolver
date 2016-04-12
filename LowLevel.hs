@@ -1,8 +1,6 @@
 module LowLevel where
 import DataTypes
 
-import Debug.Trace (trace)
-
 --gets all the variables of a constraint and checks if there is only one
 varsInConst :: Constraint -> [String]
 varsInConst (Constraint ex1 op ex2) = (varsInExpr ex1) ++ (varsInExpr ex2) 

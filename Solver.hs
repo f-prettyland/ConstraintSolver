@@ -3,7 +3,6 @@ import Data.Maybe (fromJust)
 import LowLevel
 import DataTypes
 
-import Debug.Trace (trace)
 --	this root should call dBranchIt
 solveIt ::  Heuristic -> [Constraint] -> [Variable] -> [Orr] -> [[VariableValue]]
 solveIt heur cs [] orr = []
@@ -30,7 +29,7 @@ nodesConsistent [] vs 	= ([],vs)
 nodesConsistent  (con:cs) vs
 	--if the constraint being checked is not unary keep the constraint in the result
 	| isUnaryConst == False	= ((con:resCon), resVar)
-	| otherwise				= trace ("using unary domain reduction ") $  nodesConsistent cs newVars
+	| otherwise				= nodesConsistent cs newVars
 	where
 	varNames		= varsInConst con
 	isUnaryConst	= ((length varNames)==1)
@@ -40,19 +39,19 @@ nodesConsistent  (con:cs) vs
 nodeConsistent :: String -> Constraint -> [Variable] -> [Variable]
 nodeConsistent conVar con [] = []
 nodeConsistent conVar con (var : vs)
-	| nam == conVar	= trace ("found var unary constraint refers to ") $ (reducedVar:(nodeConsistent conVar con vs))
+	| nam == conVar	= (reducedVar:(nodeConsistent conVar con vs))
 	| otherwise		= (var:(nodeConsistent conVar con vs))
 	where
 	Variable nam (Domain (d:dom)) 	= var
-	reducedDom						= trace ("reducing the domain ") $ reduceUnaryDom var con
+	reducedDom						= reduceUnaryDom var con
 	reducedVar						=(Variable nam (Domain reducedDom))
 
 reduceUnaryDom :: Variable -> Constraint -> [Int]
 --reduceUnaryDom (Variable nam (Domain [])) _ = []
 reduceUnaryDom var con
-	| fullDom==[]			= trace ("quit unary dom ") $[]
-	| canBeSat	 			= trace ("satiiiwith "++(show d)) $(d : (reduceUnaryDom (Variable nam (Domain dom)) con))
-	| otherwise				= trace ("not sat with           "++(show d)) $(reduceUnaryDom (Variable nam (Domain dom)) con)
+	| fullDom==[]			= []
+	| canBeSat	 			= (d : (reduceUnaryDom (Variable nam (Domain dom)) con))
+	| otherwise				= (reduceUnaryDom (Variable nam (Domain dom)) con)
 	where
 	Variable nam (Domain (fullDom)) = var
 	(d:dom) 	= fullDom
@@ -71,7 +70,7 @@ checkBranch' heur vv cs vs orr
 	where
 	(mostRecent : vvs)	= vv
 	--gets arcs where last changed variable is source
-	queue				= trace ("allvars for arc gen "++(show(map nameOf vs))) $getArcsForVar (nameOf mostRecent) vs 
+	queue				= getArcsForVar (nameOf mostRecent) vs 
 	--applies AC3 to it
 	newVs				= forwadProp queue mostRecent cs vs
 	--checks for empy domains
@@ -86,17 +85,17 @@ checkBranch' heur vv cs vs orr
 dBranchIt :: Heuristic -> [VariableValue] -> [Constraint] -> (Variable,[Variable]) -> [Orr] -> [[VariableValue]]
 --dBranchIt heur _ _ ((Variable _ (Domain [])),_) _ = trace ("finished branch ") $ []
 dBranchIt heur vv cons (varToAssign,vars) orr
-	| fullDom==[]= trace ("finished branch ") $ []
-	| otherwise	 = solution ++ (trace ("flipit left in dom "++(show $ length fullDom)) $ (dBranchIt heur vv cons ((Variable nam (Domain (dom))),vars) orr))
+	| fullDom==[]= []
+	| otherwise	 = solution ++ ((dBranchIt heur vv cons ((Variable nam (Domain (dom))),vars) orr))
 	where
 	isEmpty		= emptyDomains [varToAssign]
 	--take the first value of the domain
 	Variable nam (Domain (fullDom)) = varToAssign
 	(q:dom) 						= fullDom
-	solution	= trace (nam++" branch attempting val "++ (show q)++" left "++(show $ length vars)) $ checkBranch' heur ((VariableValue nam q):vv) cons vars orr
+	solution	= checkBranch' heur ((VariableValue nam q):vv) cons vars orr
 
 forwadProp :: [(String,String)] -> VariableValue -> [Constraint] -> [Variable] -> [Variable]
-forwadProp [] vv cs vs =  trace ("finished arc consistency ") $  vs
+forwadProp [] vv cs vs =   vs
 forwadProp ((src,dst):arcs) vv cs vs
 	| numOfCons > 0 = forwadProp arcs vv cs (replaceVar vs redDomsrcV)
 	| otherwise		= forwadProp arcs vv cs vs
@@ -128,7 +127,7 @@ checkPossible srcVar vv con
 
 
 arcsConsistent :: [(String, String)] -> [Constraint] -> [Variable] -> [Variable]
-arcsConsistent [] cs vs =  trace ("finished arc consistency ") $  vs
+arcsConsistent [] cs vs =  vs
 arcsConsistent ((src,dst):arcs) cs vs
 	| numOfCons > 0 = arcsConsistent arcs cs (replaceVar vs redDomsrcV)
 	| otherwise		= arcsConsistent arcs cs vs
@@ -167,7 +166,7 @@ getValidSourceDom (srcVar,dstVar) con
 	nextIter	=((Variable nam (Domain dom)),dstVar)
 	--testing the value taken from the top of the domain against all values of the 
 	--	source domain
-	isPoss = trace("called it "++(show (length dom)))$ (existsDestSatisfy dstVar (VariableValue nam d) con)
+	isPoss = (existsDestSatisfy dstVar (VariableValue nam d) con)
 
 
 --Recursively check that for an assigned source variable there exists a possible

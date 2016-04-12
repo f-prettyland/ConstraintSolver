@@ -1,5 +1,121 @@
 Heuristic static
 
-Let y be in 0..1
-Let x be in 0..2
+Let a be in 0..7
+Let b be in 0..7
+Let c be in 0..7
+Let d be in 0..7
+Let e be in 0..7
+Let f be in 0..7
+Let g be in 0..7
+Let h be in 0..7
 
+a != b-1
+a != c-1
+a != d-1
+a != b+1
+a != c+1
+a != d+1
+
+b != a-1
+b != a+1
+b != c-1
+b != c+1
+b != e-1
+b != e+1
+b != f-1
+b != f+1
+
+c != a-1
+c != a+1
+c != b-1
+c != b+1
+c != d-1
+c != d+1
+c != e-1
+c != e+1
+c != g-1
+c != g+1
+c != f-1
+c != f+1
+
+d != a-1
+d != a+1
+d != c-1
+d != c+1
+d != g-1
+d != g+1
+d != f-1
+d != f+1
+
+e != h-1
+e != h+1
+e != c-1
+e != c+1
+e != f-1
+e != f+1
+e != b-1
+e != b+1
+
+f != b-1
+f != b+1
+f != c-1
+f != c+1
+f != d-1
+f != d+1
+f != e-1
+f != e+1
+f != g-1
+f != g+1
+f != h-1
+f != h+1
+
+g != h-1
+g != h+1
+g != c-1
+g != c+1
+g != d-1
+g != d+1
+g != f-1
+g != f+1
+
+h != e-1
+h != f-1
+h != g-1
+h != e+1
+h != f+1
+h != g+1
+
+a != b
+a != c
+a != d
+a != e
+a != f
+a != g
+a != h
+
+b != c
+b != d
+b != e
+b != f
+b != g
+b != h
+
+c != d
+c != e
+c != f
+c != g
+c != h
+
+d != e
+d != f
+d != g
+d != h
+
+e != f
+e != g
+e != h
+
+f != g
+f != h
+
+g != h

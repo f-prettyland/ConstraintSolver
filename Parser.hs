@@ -7,13 +7,11 @@ import Text.Regex.Posix
 import Data.List 	( elemIndex )
 import Data.Maybe ( fromJust )
 
-import Debug.Trace (trace)
-
 --todo in here check if looking for multiple solns or not
 solutionsToOutput :: [[VariableValue]] -> Bool -> IO ()
 solutionsToOutput [] _ = putStrLn("All solutions printed")
 solutionsToOutput (s:slns) allSoln
-	| allSoln	= solnToOutput s >> solutionsToOutput slns allSoln
+	| allSoln	= putStrLn ("")>> solnToOutput s >> solutionsToOutput slns allSoln
 	| otherwise	= solnToOutput s
 
 solnToOutput :: [VariableValue] -> IO ()

@@ -10,6 +10,11 @@ data VariableValue 	= VariableValue String Int
 valOf :: VariableValue -> Int
 valOf (VariableValue _ val) = val
 
+possEqualities	= ["==", "!=", "<", ">", "<=", ">="]
+constraintReg	= "(==|!=|<|>|<=|>=)"
+heuristicKey	= "Heuristic"
+domKey			= "Let"
+
 data Expr = VI String
 	| Term Int
 	| Form Expr Oper Expr

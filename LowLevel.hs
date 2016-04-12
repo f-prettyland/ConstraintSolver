@@ -14,11 +14,11 @@ varsInExpr (VI name)		= [name]
 varsInExpr (Form ex1 op ex2)	= varsInExpr ex1 ++ varsInExpr ex2
 
 emptyDomains :: [Variable] -> Bool
---got all the way through without finding an empty domain
---emptyDomains [] = trace ("leftEmp") $ False
+--last element of list
 emptyDomains [(Variable n (Domain dom))]
+	--there is an empty domain with in the current variable
 	| dom == []		= True
-	--no empty domain, keep checking
+	--got all the way through without finding an empty domain
 	| otherwise		= False
 emptyDomains ((Variable n (Domain dom)):vs) 
 	--there is an empty domain with in the current variable

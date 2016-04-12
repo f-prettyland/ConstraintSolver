@@ -12,14 +12,14 @@ solveIt heur cs vs orr
 	--	unary constraints or from arc revisions
 	| unSfiable == True = []
 	--return the solution from the next level of the tree
-	| unSfiable == False=  trace ("goin in ") $ dBranchIt heur [] newCons heurPick orr
+	| unSfiable == False=   dBranchIt heur [] newCons heurPick orr
 	where
 	(newCons, ncVars)	= nodesConsistent cs vs
 	queue				= createQueue ncVars
 	--applies AC3 to it
-	acVars				= trace ("iniiit vs "++(show(map nameOf vs))) $arcsConsistent queue newCons vs
+	acVars				= arcsConsistent queue newCons ncVars
 	--checks for empty domains
-	unSfiable			= trace ("goin in emp") $emptyDomains acVars
+	unSfiable			= emptyDomains acVars
 	--finds the new variable to branch on
 	heurPick			= heur acVars
 
@@ -30,30 +30,33 @@ nodesConsistent [] vs 	= ([],vs)
 nodesConsistent  (con:cs) vs
 	--if the constraint being checked is not unary keep the constraint in the result
 	| isUnaryConst == False	= ((con:resCon), resVar)
-	| otherwise				= nodesConsistent cs newVars
+	| otherwise				= trace ("using unary domain reduction ") $  nodesConsistent cs newVars
 	where
 	varNames		= varsInConst con
 	isUnaryConst	= ((length varNames)==1)
 	(resCon, resVar)= nodesConsistent cs vs
-	newVars			= nodeConsistent (varNames!!0) con vs
+	newVars			=  nodeConsistent (varNames!!0) con vs
 
 nodeConsistent :: String -> Constraint -> [Variable] -> [Variable]
 nodeConsistent conVar con [] = []
 nodeConsistent conVar con (var : vs)
-	| nam == conVar	= (reducedVar:(nodeConsistent conVar con vs))
+	| nam == conVar	= trace ("found var unary constraint refers to ") $ (reducedVar:(nodeConsistent conVar con vs))
 	| otherwise		= (var:(nodeConsistent conVar con vs))
 	where
 	Variable nam (Domain (d:dom)) 	= var
-	reducedVar						=(Variable nam (Domain (reduceUnaryDom var con)))
+	reducedDom						= trace ("reducing the domain ") $ reduceUnaryDom var con
+	reducedVar						=(Variable nam (Domain reducedDom))
 
 reduceUnaryDom :: Variable -> Constraint -> [Int]
-reduceUnaryDom (Variable nam (Domain [])) _ = []
+--reduceUnaryDom (Variable nam (Domain [])) _ = []
 reduceUnaryDom var con
-	| canBeSat	= (d : (reduceUnaryDom var con))
-	| otherwise	= (reduceUnaryDom (Variable nam (Domain dom)) con)
+	| fullDom==[]			= trace ("quit unary dom ") $[]
+	| canBeSat	 			= trace ("satiiiwith "++(show d)) $(d : (reduceUnaryDom (Variable nam (Domain dom)) con))
+	| otherwise				= trace ("not sat with           "++(show d)) $(reduceUnaryDom (Variable nam (Domain dom)) con)
 	where
-	Variable nam (Domain (d:dom)) = var
-	satisfied = (evCon [(VariableValue nam d)] con)
+	Variable nam (Domain (fullDom)) = var
+	(d:dom) 	= fullDom
+	satisfied 	= (evCon [(VariableValue nam d)] con)
 	canBeSat	= (satisfied == Nothing) || (satisfied == Just True)
 
 --After assigning a variable this applies arconsistensy 
@@ -70,7 +73,6 @@ checkBranch' heur vv cs vs orr
 	--gets arcs where last changed variable is source
 	queue				= trace ("allvars for arc gen "++(show(map nameOf vs))) $getArcsForVar (nameOf mostRecent) vs 
 	--applies AC3 to it
-	--newVs				= trace ("chckbran vs "++(show(map nameOf vs)++"   q leng "++(show(map show queue)) )) $ arcsConsistent queue cs vs
 	newVs				= forwadProp queue mostRecent cs vs
 	--checks for empy domains
 	unSfiable			= emptyDomains newVs
@@ -84,13 +86,14 @@ checkBranch' heur vv cs vs orr
 dBranchIt :: Heuristic -> [VariableValue] -> [Constraint] -> (Variable,[Variable]) -> [Orr] -> [[VariableValue]]
 --dBranchIt heur _ _ ((Variable _ (Domain [])),_) _ = trace ("finished branch ") $ []
 dBranchIt heur vv cons (varToAssign,vars) orr
-	| isEmpty	= trace ("finished branch ") $ []
-	| otherwise	= solution ++ (trace ("flipit") $ (dBranchIt heur vv cons ((Variable nam (Domain (dom))),vars) orr))
+	| fullDom==[]= trace ("finished branch ") $ []
+	| otherwise	 = solution ++ (trace ("flipit left in dom "++(show $ length fullDom)) $ (dBranchIt heur vv cons ((Variable nam (Domain (dom))),vars) orr))
 	where
 	isEmpty		= emptyDomains [varToAssign]
 	--take the first value of the domain
-	(Variable nam (Domain (q:dom))) = varToAssign
-	solution	= trace (nam++" branch attempting val "++ (show q)) $ checkBranch' heur ((VariableValue nam q):vv) cons vars orr
+	Variable nam (Domain (fullDom)) = varToAssign
+	(q:dom) 						= fullDom
+	solution	= trace (nam++" branch attempting val "++ (show q)++" left "++(show $ length vars)) $ checkBranch' heur ((VariableValue nam q):vv) cons vars orr
 
 forwadProp :: [(String,String)] -> VariableValue -> [Constraint] -> [Variable] -> [Variable]
 forwadProp [] vv cs vs =  trace ("finished arc consistency ") $  vs
@@ -148,7 +151,7 @@ reduceArcDom (src,dst) (con:cs) =
 --Recursively goes over all the values of the domain ensuring each can have a
 --	satisfied constraint, with at least one destination value
 getValidSourceDom :: (Variable,Variable) -> Constraint -> [Int]
---getValidSourceDom ((Variable nam (Domain [])),_) _ = []
+getValidSourceDom ((Variable nam (Domain [])),_) _ = []
 getValidSourceDom (srcVar,dstVar) con
 	| isEmpty	= []
 	--calls this function on the remaining domain but appends the successful value to

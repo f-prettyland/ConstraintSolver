@@ -8,11 +8,10 @@ import Data.List 	( elemIndex )
 import Data.Maybe ( fromJust )
 
 import Debug.Trace (trace)
-possEqualities = ["==", "!=", "<", ">", "<=", ">="]
 
 solutionsToOutput :: [[VariableValue]] -> IO ()
-solutionsToOutput [] = putStrLn("No solutions found")
-solutionsToOutput (s:slns) = solnToOutput s
+solutionsToOutput [] = putStrLn("All solutions printed")
+solutionsToOutput (s:slns) =  solnToOutput s >> solutionsToOutput slns
 
 solnToOutput :: [VariableValue] -> IO ()
 solnToOutput = mapM_ (\(VariableValue na val) -> putStrLn (na++" = "++(show val))) 
@@ -30,15 +29,15 @@ parseLines' heur cs vs (s:ss)
 	| isConst	= parseLines' heur (constLine s :cs) vs ss
 	| otherwise	= parseLines' heur cs vs ss
 	where
-	isDom				= s =~ "Let"
-	isHeur				= s =~ "Heuristic"
-	isConst				= s =~ "(==|!=|<|>|<=|>=)"
+	isDom				= s =~ domKey
+	isHeur				= s =~ heuristicKey
+	isConst				= s =~ constraintReg
 
 --gets the constraint from a line
 constLine :: String -> Constraint
-constLine line = Constraint ex1 op ex2
+constLine line =  (Constraint ex1 op ex2)
 	where
-	(opChar, split) = getWhatSplicedOn possEqualities line
+	(opChar, split) =getWhatSplicedOn possEqualities line
 	op = getOp opChar
 	ex1 = makeExpr (split!!0)
 	ex2 = makeExpr (split!!1)
@@ -96,5 +95,5 @@ main = do	args <- getArgs
 		constraintFile <- (readFile "test.cnst")
 		let cnstLines = lines constraintFile
 		let (her, pop, vars) = parseLines cnstLines
-		let solns 			= trace (nameOf(pop!!0)) $solveIt her pop vars []
+		let solns 			= solveIt her pop vars []
 		solutionsToOutput solns

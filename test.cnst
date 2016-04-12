@@ -1,6 +1,5 @@
 Heuristic static
 
-Let x be in 0..2
 Let y be in 0..1
+Let x be in 0..2
 
-x == 2

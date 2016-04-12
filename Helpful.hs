@@ -22,10 +22,10 @@ spliceOn :: String -> String -> [String]
 spliceOn sp big =  map unpack (splitOn (pack sp) (pack big))
 
 getWhatSplicedOn :: [String] -> String -> (String,[String])
-getWhatSplicedOn [] big = ("", []) --error in constraint parsing
+getWhatSplicedOn [] big = error "Constraint parsing splitting line error"
 getWhatSplicedOn (sp:sps) big
 	| sucSplit == 1	= getWhatSplicedOn sps big
 	| otherwise		= (sp, res)
 	where
-	res = spliceOn sp big
-	sucSplit = length res
+	res 	= spliceOn sp big
+	sucSplit= length res

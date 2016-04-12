@@ -12,6 +12,10 @@ valOf (VariableValue _ val) = val
 
 possEqualities	= ["==", "!=", "<", ">", "<=", ">="]
 constraintReg	= "(==|!=|<|>|<=|>=)"
+
+possOperations	= ["-", "+", "*"]
+operationReg	= "(\\-|\\+|\\*)"
+
 heuristicKey	= "Heuristic"
 domKey			= "Let"
 

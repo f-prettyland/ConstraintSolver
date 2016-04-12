@@ -9,9 +9,12 @@ import Data.Maybe ( fromJust )
 
 import Debug.Trace (trace)
 
-solutionsToOutput :: [[VariableValue]] -> IO ()
-solutionsToOutput [] = putStrLn("All solutions printed")
-solutionsToOutput (s:slns) =  solnToOutput s >> solutionsToOutput slns
+--todo in here check if looking for multiple solns or not
+solutionsToOutput :: [[VariableValue]] -> Bool -> IO ()
+solutionsToOutput [] _ = putStrLn("All solutions printed")
+solutionsToOutput (s:slns) allSoln
+	| allSoln	= solnToOutput s >> solutionsToOutput slns allSoln
+	| otherwise	= solnToOutput s
 
 solnToOutput :: [VariableValue] -> IO ()
 solnToOutput = mapM_ (\(VariableValue na val) -> putStrLn (na++" = "++(show val))) 
@@ -29,15 +32,15 @@ parseLines' heur cs vs (s:ss)
 	| isConst	= parseLines' heur (constLine s :cs) vs ss
 	| otherwise	= parseLines' heur cs vs ss
 	where
-	isDom				= s =~ domKey
-	isHeur				= s =~ heuristicKey
-	isConst				= s =~ constraintReg
+	isDom	= s =~ domKey
+	isHeur	= s =~ heuristicKey
+	isConst	= s =~ constraintReg
 
 --gets the constraint from a line
 constLine :: String -> Constraint
 constLine line =  (Constraint ex1 op ex2)
 	where
-	(opChar, split) =getWhatSplicedOn possEqualities line
+	(opChar, split) = getWhatSplicedOn possEqualities line
 	op = getOp opChar
 	ex1 = makeExpr (split!!0)
 	ex2 = makeExpr (split!!1)
@@ -45,14 +48,18 @@ constLine line =  (Constraint ex1 op ex2)
 --assumes only string name of thing, no addition, no constraints
 makeExpr :: String -> Expr
 makeExpr expres
-	| poss /= Nothing = Term (fromJust poss)
-	| otherwise = VI (trim expres)
+	| isExpr			= (Form (makeExpr (split!!0)) (getCalc opChar) (makeExpr (split!!1)))
+	| poss /= Nothing	= Term (fromJust poss)
+	| otherwise			= VI (trim expres)
 	where
-	poss = maybeRead expres
+	poss 	= (maybeRead (trim expres) :: Maybe Int)
+	isExpr	= expres =~ operationReg
+	(opChar, split) = getWhatSplicedOn possOperations expres
 
 heurLine :: String -> Heuristic
 heurLine line
       | x == "static"	= staticOrder
+      | x == "sdf"		= sdf
       | otherwise		= staticOrder
       where
       split = spliceOn " " line
@@ -90,10 +97,23 @@ getOp sym
 	| sym == "<=" = (<=) -- (:
 	| sym == ">=" = (>=) -- ):
 
+getCalc :: String -> Oper
+getCalc sym
+	| sym == "*" = (*)
+	| sym == "+" = (+)
+	| sym == "-"  = (-) 
+
+allSolnFind :: [Char] -> Bool
+allSolnFind x
+      | x == "all"	= True
+      | otherwise	= False
+
 main = do	args <- getArgs
-		--constraintFile <- readFile (args !! 0)
-		constraintFile <- (readFile "test.cnst")
+		constraintFile <- (if (length args) > 0 then readFile (args !! 0) else error "No file given")
+		--allSolns <- maybeRead (args !! 1)
+		--constraintFile <- (readFile "test.cnst")
+		let allSolns = (if (length args) > 1 then allSolnFind (args !! 1) else False)
 		let cnstLines = lines constraintFile
 		let (her, pop, vars) = parseLines cnstLines
 		let solns 			= solveIt her pop vars []
-		solutionsToOutput solns
+		solutionsToOutput solns allSolns
